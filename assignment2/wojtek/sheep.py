@@ -4,11 +4,12 @@ from animal import Animal
 
 
 class Sheep(Animal):
-    def __init__(self, limit, movement):
+    def __init__(self, limit, movement, index):
         super().__init__(movement)
         self._x = random.uniform(-limit, limit)
         self._y = random.uniform(-limit, limit)
         self.__is_alive = True
+        self._index = index
 
     def move(self):
         choice = random.choice(["left", "right", "up", "down"])
@@ -32,6 +33,9 @@ class Sheep(Animal):
 
     def get_y(self):
         return self._y
+
+    def get_index(self):
+        return self._index
 
 
 

@@ -12,17 +12,17 @@ class Wolf(Animal):
         self.__sheep_list = sheep_list
 
     def move(self): #TODO to obczaić jeszcze
-        closest_sheep = self.__sheep_list[0]
-        closest_dist = self.__calculate_dist(self.__sheep_list[0].get_x(),
-                                             self.__sheep_list[0].get_y())
-        for i in range(1, len(self.__sheep_list)):
+        closest_sheep = None
+        closest_dist = math.inf
+        for i in range(len(self.__sheep_list)):
             if self.__sheep_list[i].is_eaten():
                 continue
             distance = self.__calculate_dist(self.__sheep_list[i].get_x(),
                                              self.__sheep_list[i].get_y())
-            if distance < closest_dist:
+            if closest_sheep is None or distance < closest_dist:
                 closest_dist = distance
                 closest_sheep = self.__sheep_list[i]
+
         if closest_dist <= self._movement:
             closest_sheep.eaten()
             self._x = closest_sheep.get_x()
@@ -33,6 +33,8 @@ class Wolf(Animal):
                 (closest_sheep.get_y() - self._y) / closest_dist)
             self._x = self._x + normalized_direction[0] * self._movement
             self._y = self._y + normalized_direction[1] * self._movement
+
+        return closest_sheep
 
     def get_x(self):
         return self._x

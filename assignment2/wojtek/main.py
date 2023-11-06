@@ -22,6 +22,6 @@ from simulation import Simulation
 
 #  The simulation ends either when all sheep have been eaten or when a predefined maximum number of rounds has been reached.
 
-simulation = Simulation(round_nr=50, sheep_nr=15, limit=10, sheep_move=0.5,
+simulation = Simulation(max_round_nr=50, sheep_nr=15, limit=10, sheep_move=0.5,
                         wolf_move=1.0)
 simulation.start()
