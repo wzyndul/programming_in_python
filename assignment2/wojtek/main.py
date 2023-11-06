@@ -1,4 +1,5 @@
-#the position of each animal in the meadow is defined as a pair of floating-point numbers
+# the position of each animal in the meadow is defined as a pair of floating-point numbers
+from simulation import Simulation
 
 # The initial position of each sheep is chosen randomly at the start
 
@@ -20,3 +21,7 @@
 
 
 #  The simulation ends either when all sheep have been eaten or when a predefined maximum number of rounds has been reached.
+
+simulation = Simulation(round_nr=50, sheep_nr=15, limit=10, sheep_move=0.5,
+                        wolf_move=1.0)
+simulation.start()

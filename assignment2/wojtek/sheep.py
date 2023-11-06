@@ -34,12 +34,4 @@ class Sheep(Animal):
         return self._y
 
 
-sheep = Sheep(10, 1)
-print(sheep.get_x())
-print(sheep.get_y())
-sheep.move()
-print(sheep.is_eaten())
-sheep.eaten()
-print(sheep.get_x())
-print(sheep.get_y())
-print(sheep.is_eaten())
+
