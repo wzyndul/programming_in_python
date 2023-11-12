@@ -36,6 +36,3 @@ class Sheep(Animal):
 
     def get_index(self):
         return self._index
-
-
-
