@@ -9,43 +9,35 @@ class Wolf(Animal):
 
     def __init__(self, sheep_list: List[Sheep], movement):
         super().__init__(movement)
-        self.__sheep_list = sheep_list
+        self.sheep_list = sheep_list
 
-    def move(self): #TODO to obczaić jeszcze
+    def move(self):  # TODO to obczaić jeszcze
         closest_sheep = None
         closest_dist = math.inf
-        for i in range(len(self.__sheep_list)):
-            if self.__sheep_list[i] is None:
+        for i in range(len(self.sheep_list)):
+            if self.sheep_list[i] is None:
                 continue
-            distance = self.__calculate_dist(self.__sheep_list[i].get_x(),
-                                             self.__sheep_list[i].get_y())
+            distance = self.calculate_dist(self.sheep_list[i].x,
+                                             self.sheep_list[i].y)
             if closest_sheep is None or distance < closest_dist:
                 closest_dist = distance
-                closest_sheep = self.__sheep_list[i]
+                closest_sheep = self.sheep_list[i]
 
-        sheep_index = closest_sheep.get_index()
-        if closest_dist <= self._movement:
+        sheep_index = closest_sheep.index
+        if closest_dist <= self.movement:
             closest_sheep.eaten()
-            self.__sheep_list[sheep_index] = None
-            self._x = closest_sheep.get_x()
-            self._y = closest_sheep.get_y()
+            self.sheep_list[sheep_index] = None
+            self.x = closest_sheep.x
+            self.y = closest_sheep.y
         else:
             normalized_direction = (
-                (closest_sheep.get_x() - self._x) / closest_dist,
-                (closest_sheep.get_y() - self._y) / closest_dist)
-            self._x = self._x + normalized_direction[0] * self._movement
-            self._y = self._y + normalized_direction[1] * self._movement
+                (closest_sheep.x - self.x) / closest_dist,
+                (closest_sheep.y - self.y) / closest_dist)
+            self.x = self.x + normalized_direction[0] * self.movement
+            self.y = self.y + normalized_direction[1] * self.movement
 
         return sheep_index
 
-
-
-    def get_x(self):
-        return self._x
-
-    def get_y(self):
-        return self._y
-
-    def __calculate_dist(self, sheep_x, sheep_y):
+    def calculate_dist(self, sheep_x, sheep_y):
         return math.sqrt(
-            math.pow(self._x - sheep_x, 2) + math.pow(self._y - sheep_y, 2))
+            math.pow(self.x - sheep_x, 2) + math.pow(self.y - sheep_y, 2))
