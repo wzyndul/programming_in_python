@@ -1,12 +1,12 @@
 import csv
 import json
-
+import logging
 from sheep import Sheep
 from wolf import Wolf
 
 
 class Simulation:
-    def __init__(self, max_round_nr, sheep_nr, limit, sheep_move, wolf_move):
+    def __init__(self, max_round_nr, sheep_nr, limit, sheep_move, wolf_move, pause, log_level=None):
         self.max_round_nr = max_round_nr
         self.sheep_nr = sheep_nr
         self.limit = limit
@@ -16,19 +16,20 @@ class Simulation:
         self.wolf = None
         self.sheep_eaten = 0
         self.round = 0
+        self.pause = pause
+        self.log_level = log_level
 
     def display_info(self, sheep_alive, index_sheep):
 
         info = f"Round number: {self.round}\nWolf Position:" \
-               f" ({round(self.wolf.x, 3)}," \
-               f"{round(self.wolf.y, 3)})" \
+               f" ({round(self.wolf.x, 3)}, " \
+               f"{round(self.wolf.y, 3)}) " \
                f"sheep_alive: {sheep_alive}\n"
 
         if self.sheep_list[index_sheep] is None:
-            info += f"The sheep was eaten, sheep number:" \
-                    f" {index_sheep}\n\n"
+            info += f"The sheep number: {index_sheep} was eaten\n\n"
         else:
-            info += f"The wolf is chasing, sheep number:" \
+            info += f"The wolf is chasing sheep number:" \
                     f" {index_sheep}\n\n"
         return info
 
@@ -81,8 +82,13 @@ class Simulation:
                 if sheep is not None:
                     sheep_alive += 1
                     sheep.move()
+            if sheep_alive == 0:
+                print("All sheep are dead")
+                break
             index_sheep = self.wolf.move()
             print(self.display_info(sheep_alive, index_sheep))
             self.data_csv(sheep_alive)
             self.data_json()
             self.round += 1
+            if self.pause:
+                input("Press Enter to continue...")
