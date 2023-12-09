@@ -7,7 +7,7 @@ from wolf import Wolf
 
 class Simulation:
 
-    def __init__(self, max_round_nr, sheep_nr, limit, sheep_move, wolf_move, pause, log_level=None):
+    def __init__(self, max_round_nr, sheep_nr, limit, sheep_move, wolf_move, pause, logger = None):
         self.max_round_nr = max_round_nr
         self.sheep_nr = sheep_nr
         self.limit = limit
@@ -18,14 +18,7 @@ class Simulation:
         self.sheep_eaten = 0
         self.round = 0
         self.pause = pause
-        self.log_level_mapping = {
-            'DEBUG': logging.DEBUG,
-            'INFO': logging.INFO,
-            'WARNING': logging.WARNING,
-            'ERROR': logging.ERROR,
-            'CRITICAL': logging.CRITICAL
-        }
-        self.log_level = self.log_level_mapping[log_level]
+        self.logger = logger
 
 
 
@@ -84,6 +77,26 @@ class Simulation:
         self.wolf = Wolf(sheep_list=self.sheep_list,
                          movement=self.wolf_move)
 
+    def log_debug_event(self, message):
+        if self.logger.getEffectiveLevel() <= logging.DEBUG:
+            logging.debug(message)
+
+    def log_info_event(self, message):
+        if self.logger.getEffectiveLevel() <= logging.INFO:
+            logging.info(message)
+
+    def log_warning_event(self, message):
+        if self.logger.getEffectiveLevel() <= logging.WARNING:
+            logging.warning(message)
+
+    def log_error_event(self, message):
+        if self.logger.getEffectiveLevel() <= logging.ERROR:
+            logging.error(message)
+
+    def log_critical_event(self, message):
+        if self.logger.getEffectiveLevel() <= logging.CRITICAL:
+            logging.critical(message)
+
     def start(self):
         self.spawn_animals()
         for _ in range(self.max_round_nr):
@@ -102,3 +115,5 @@ class Simulation:
             self.round += 1
             if self.pause:
                 input("Press Enter to continue...")
+
+

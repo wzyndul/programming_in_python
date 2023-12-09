@@ -1,7 +1,15 @@
 from simulation import Simulation
 import argparse
 import configparser
+import logging
 
+LOG_LEVEL_MAPPING = {
+    'DEBUG': logging.DEBUG,
+    'INFO': logging.INFO,
+    'WARNING': logging.WARNING,
+    'ERROR': logging.ERROR,
+    'CRITICAL': logging.CRITICAL
+}
 
 def validate_positive_float(value, field_name):
     try:
@@ -71,8 +79,14 @@ def main():
     else:
         rounds_nr = 50
 
+    if args.log:
+        logging.basicConfig(level=LOG_LEVEL_MAPPING[args.log])
+        logger = logging.getLogger(__name__)
+    else:
+        logger = None
+
     simulation = Simulation(max_round_nr=rounds_nr, sheep_nr=sheep_nr, limit=init_pos_limit,
-                            sheep_move=sheep_move_dist, wolf_move=wolf_move_dist, pause=args.wait, log_level=args.log)
+                            sheep_move=sheep_move_dist, wolf_move=wolf_move_dist, pause=args.wait, logger=logger)
     simulation.start()
 
 
