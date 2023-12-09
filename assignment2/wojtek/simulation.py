@@ -6,6 +6,7 @@ from wolf import Wolf
 
 
 class Simulation:
+
     def __init__(self, max_round_nr, sheep_nr, limit, sheep_move, wolf_move, pause, log_level=None):
         self.max_round_nr = max_round_nr
         self.sheep_nr = sheep_nr
@@ -17,7 +18,16 @@ class Simulation:
         self.sheep_eaten = 0
         self.round = 0
         self.pause = pause
-        self.log_level = log_level
+        self.log_level_mapping = {
+            'DEBUG': logging.DEBUG,
+            'INFO': logging.INFO,
+            'WARNING': logging.WARNING,
+            'ERROR': logging.ERROR,
+            'CRITICAL': logging.CRITICAL
+        }
+        self.log_level = self.log_level_mapping[log_level]
+
+
 
     def display_info(self, sheep_alive, index_sheep):
 
