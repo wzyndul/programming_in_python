@@ -53,6 +53,8 @@ class Simulation:
         with open("pos.json", "w") as json_file:
             json_file.write('\n')
             json.dump(existing_data, json_file, indent=4)
+        if self.logger:
+            self.logger.debug(f"simulation data was saved to json file.")
 
     def data_csv(self, num_alive_sheep):  # TODO czy czysicic plik json i csv na poczatku kazdego wywolania programu
         file_exists = False
@@ -69,51 +71,47 @@ class Simulation:
                 csvwriter.writerow(['Round Number', 'Number of Alive Sheep'])  # TODO czy dopisać nazwy kolumn czy out?
 
             csvwriter.writerow([self.round, num_alive_sheep])
+        if self.logger:
+            self.logger.debug(f"simulation data was saved to csv file.")
 
     def spawn_animals(self):
-        self.sheep_list = [
-            Sheep(limit=self.limit, movement=self.sheep_move, index=x) for x
-            in range(self.sheep_nr)]
+        self.sheep_list = [Sheep(limit=self.limit, movement=self.sheep_move, index=x, logger=self.logger) for x in range(self.sheep_nr)]
         self.wolf = Wolf(sheep_list=self.sheep_list,
                          movement=self.wolf_move)
-
-    def log_debug_event(self, message):
-        if self.logger.getEffectiveLevel() <= logging.DEBUG:
-            logging.debug(message)
-
-    def log_info_event(self, message):
-        if self.logger.getEffectiveLevel() <= logging.INFO:
-            logging.info(message)
-
-    def log_warning_event(self, message):
-        if self.logger.getEffectiveLevel() <= logging.WARNING:
-            logging.warning(message)
-
-    def log_error_event(self, message):
-        if self.logger.getEffectiveLevel() <= logging.ERROR:
-            logging.error(message)
-
-    def log_critical_event(self, message):
-        if self.logger.getEffectiveLevel() <= logging.CRITICAL:
-            logging.critical(message)
+        if self.logger:
+            self.logger.info(f"initial positions of all sheep were determined")
 
     def start(self):
         self.spawn_animals()
         for _ in range(self.max_round_nr):
+            if self.logger:
+                self.logger.info(f"round number: {self.round} just started")
             sheep_alive = 0
             for sheep in self.sheep_list:
                 if sheep is not None:
                     sheep_alive += 1
                     sheep.move()
+            if self.logger:
+                self.logger.info(f"all alive sheep moved")
             if sheep_alive == 0:
+                if self.logger:
+                    self.logger.info(f"simulation ended all sheep are dead")
                 print("All sheep are dead")
                 break
             index_sheep = self.wolf.move()
+            if self.logger:
+                if self.sheep_list[index_sheep] is None:
+                    self.logger.info(f"sheep number: {index_sheep} was eaten")
+                else:
+                    self.logger.info(f"wolf is chasing sheep number: {index_sheep}")
+                self.logger.info(f"End of the round number, number of alive sheep: {sheep_alive}")
             print(self.display_info(sheep_alive, index_sheep))
             self.data_csv(sheep_alive)
             self.data_json()
             self.round += 1
             if self.pause:
                 input("Press Enter to continue...")
+        if self.logger:
+            self.logger.info(f"simulation ended max round number reached")
 
 

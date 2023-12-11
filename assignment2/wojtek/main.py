@@ -11,6 +11,7 @@ LOG_LEVEL_MAPPING = {
     'CRITICAL': logging.CRITICAL
 }
 
+
 def validate_positive_float(value, field_name):
     try:
         float_value = float(value)
@@ -37,6 +38,7 @@ def validate_log_level(value):
         raise argparse.ArgumentTypeError(f"Invalid log level. Choose one of {', '.join(valid_levels)}")
     return value
 
+
 def main():
     # TODO wez to potem dostosuj odpoiwdni
     custom_description = (
@@ -48,7 +50,7 @@ def main():
         "- If the -h/--help option is provided, this help message will be displayed, and the simulation will not be performed."
     )
     parser = argparse.ArgumentParser(description=custom_description, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-c', '--config', type=str,  metavar='FILE',  help='Path to the configuration file')
+    parser.add_argument('-c', '--config', type=str, metavar='FILE', help='Path to the configuration file')
     parser.add_argument('-s', '--sheep', type=int, metavar='NUM', help='Number of sheep')
     parser.add_argument('-r', '--rounds', type=int, metavar='NUM', help='Maximum number of rounds')
     parser.add_argument('-w', '--wait', action='store_true', help='Pause simulation at the end of each round')
@@ -57,10 +59,22 @@ def main():
                         help='Specify the log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
 
     args = parser.parse_args()
+    logger = None
+
+    if args.log:
+
+        if args.log:
+            log_level = LOG_LEVEL_MAPPING.get(args.log.upper())
+
+            logging.basicConfig(level=log_level, filename='chase.log', filemode='w')
+            logger = logging.getLogger("log")
 
     if args.config:
         try:
             init_pos_limit, sheep_move_dist, wolf_move_dist = read_config(args.config)
+            if logger:
+                logger.debug(f"values from a configuration file were loaded. initial position limit: {init_pos_limit}, "
+                             f"sheep move distance: {sheep_move_dist}, wolf move distance: {wolf_move_dist}")
         except Exception as e:
             print(f"Error reading configuration file: {str(e)}")
             return
@@ -78,12 +92,6 @@ def main():
         rounds_nr = args.rounds
     else:
         rounds_nr = 50
-
-    if args.log:
-        logging.basicConfig(level=LOG_LEVEL_MAPPING[args.log])
-        logger = logging.getLogger(__name__)
-    else:
-        logger = None
 
     simulation = Simulation(max_round_nr=rounds_nr, sheep_nr=sheep_nr, limit=init_pos_limit,
                             sheep_move=sheep_move_dist, wolf_move=wolf_move_dist, pause=args.wait, logger=logger)
