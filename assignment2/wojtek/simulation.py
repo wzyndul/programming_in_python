@@ -1,13 +1,16 @@
 import csv
 import json
 import logging
+import os
+
 from sheep import Sheep
 from wolf import Wolf
 
 
 class Simulation:
 
-    def __init__(self, max_round_nr, sheep_nr, limit, sheep_move, wolf_move, pause, logger = None):
+    def __init__(self, max_round_nr, sheep_nr, limit, sheep_move, wolf_move,
+                 pause, logger=None):
         self.max_round_nr = max_round_nr
         self.sheep_nr = sheep_nr
         self.limit = limit
@@ -19,8 +22,6 @@ class Simulation:
         self.round = 0
         self.pause = pause
         self.logger = logger
-
-
 
     def display_info(self, sheep_alive, index_sheep):
 
@@ -37,45 +38,47 @@ class Simulation:
         return info
 
     def data_json(self):
-        sheep_pos = [[sheep.x, sheep.y] if sheep is not None else None for sheep in self.sheep_list]
-        new_data = {"round_no": self.round, "wolf_pos": [self.wolf.x, self.wolf.y], "sheep_pos": sheep_pos}
+        sheep_pos = [[sheep.x, sheep.y] if sheep is not None else None for
+                     sheep in self.sheep_list]
+        new_data = {"round_no": self.round,
+                    "wolf_pos": [self.wolf.x, self.wolf.y],
+                    "sheep_pos": sheep_pos}
 
         try:
             with open("pos.json", "r") as json_file:
                 try:
-                    existing_data = json.load(json_file)  # if json file exists but is empty
+                    existing_data = json.load(json_file)  # Load existing data
                 except json.JSONDecodeError:
                     existing_data = []
         except FileNotFoundError:
             existing_data = []
 
-        existing_data.append(new_data)
-        with open("pos.json", "w") as json_file:
-            json_file.write('\n')
-            json.dump(existing_data, json_file, indent=4)
+        if self.round == 0:  # If round number is 0, overwrite the file
+            with open("pos.json", "w") as json_file:
+                json.dump([new_data], json_file, indent=4)
+        else:  # If round number is not 0, append to the file
+            existing_data.append(new_data)
+            with open("pos.json", "w") as json_file:
+                json.dump(existing_data, json_file, indent=4)
+
         if self.logger:
             self.logger.debug(f"simulation data was saved to json file.")
 
-    def data_csv(self, num_alive_sheep):  # TODO czy czysicic plik json i csv na poczatku kazdego wywolania programu
-        file_exists = False
-        try:
-            with open('alive.csv', 'r'):
-                file_exists = True
-        except FileNotFoundError:
-            file_exists = False
-
-        with open('alive.csv', 'a' if file_exists else 'w',
+    def data_csv(self, num_alive_sheep):
+        file_exists = os.path.isfile('alive.csv')
+        with open('alive.csv', 'a' if file_exists and self.round != 0 else 'w',
                   newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
-            if not file_exists:
-                csvwriter.writerow(['Round Number', 'Number of Alive Sheep'])  # TODO czy dopisać nazwy kolumn czy out?
-
             csvwriter.writerow([self.round, num_alive_sheep])
+
         if self.logger:
             self.logger.debug(f"simulation data was saved to csv file.")
 
     def spawn_animals(self):
-        self.sheep_list = [Sheep(limit=self.limit, movement=self.sheep_move, index=x, logger=self.logger) for x in range(self.sheep_nr)]
+        self.sheep_list = [
+            Sheep(limit=self.limit, movement=self.sheep_move, index=x,
+                  logger=self.logger) for x in
+            range(self.sheep_nr)]
         self.wolf = Wolf(sheep_list=self.sheep_list,
                          movement=self.wolf_move)
         if self.logger:
@@ -103,8 +106,11 @@ class Simulation:
                 if self.sheep_list[index_sheep] is None:
                     self.logger.info(f"sheep number: {index_sheep} was eaten")
                 else:
-                    self.logger.info(f"wolf is chasing sheep number: {index_sheep}")
-                self.logger.info(f"End of the round number, number of alive sheep: {sheep_alive}")
+                    self.logger.info(
+                        f"wolf is chasing sheep number: {index_sheep}")
+                self.logger.info(
+                    f"End of the round number,"
+                    f" number of alive sheep: {sheep_alive}")
             print(self.display_info(sheep_alive, index_sheep))
             self.data_csv(sheep_alive)
             self.data_json()
@@ -113,5 +119,3 @@ class Simulation:
                 input("Press Enter to continue...")
         if self.logger:
             self.logger.info(f"simulation ended max round number reached")
-
-

@@ -12,7 +12,8 @@ class Sheep(Animal):
         self.index = index
         self.direction = None
         if self.logger:
-            self.logger.debug(f"Sheep {self.index} created at ({self.x}, {self.y})")
+            self.logger.debug(
+                f"Sheep {self.index} created at ({self.x}, {self.y})")
 
     def move(self):
         self.direction = random.choice(["left", "right", "up", "down"])
@@ -25,9 +26,10 @@ class Sheep(Animal):
         else:
             self.y -= self.movement
         if self.logger:
-            self.logger.debug(f"Sheep {self.index} chosen direction:  {self.direction}")
-            self.logger.debug(f"Sheep {self.index} moved to ({self.x}, {self.y})")
+            self.logger.debug(
+                f"Sheep {self.index} chosen direction:  {self.direction}")
+            self.logger.debug(
+                f"Sheep {self.index} moved to ({self.x}, {self.y})")
 
     def eaten(self):
         self.is_alive = False
-

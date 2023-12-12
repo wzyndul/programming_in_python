@@ -11,19 +11,21 @@ class Wolf(Animal):
         super().__init__(movement, logger)
         self.sheep_list = sheep_list
 
-    def move(self):  # TODO to obczaić jeszcze
+    def move(self):
         closest_sheep = None
         closest_dist = math.inf
         for i in range(len(self.sheep_list)):
             if self.sheep_list[i] is None:
                 continue
             distance = self.calculate_dist(self.sheep_list[i].x,
-                                             self.sheep_list[i].y)
+                                           self.sheep_list[i].y)
             if closest_sheep is None or distance < closest_dist:
                 closest_dist = distance
                 closest_sheep = self.sheep_list[i]
         if self.logger:
-            self.logger.debug(f"Closest sheep is {closest_sheep.index} the distance to closest sheep is {closest_dist}")
+            self.logger.debug(
+                f"Closest sheep is {closest_sheep.index}"
+                f" the distance to closest sheep is {closest_dist}")
         if closest_dist <= self.movement:
             closest_sheep.eaten()
             self.sheep_list[closest_sheep.index] = None
