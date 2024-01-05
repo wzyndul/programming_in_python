@@ -1,10 +1,13 @@
 from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from .forms import DataEntryForm
 from .models import DataEntry
+from .serializers import DataEntrySerializer
 
 
 def home(request):
@@ -40,4 +43,9 @@ def delete(request, record_id):
     return HttpResponseNotFound(render(request, 'error_page.html', {'error_code': '404'}))
 
 
-
+@api_view(['GET'])
+def api_get_data(request):
+    if request.method == 'GET':
+        entries = DataEntry.objects.all()
+        serializer = DataEntrySerializer(entries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
