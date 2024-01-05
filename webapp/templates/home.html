@@ -1,0 +1,31 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block header %}Data Entries{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Primary Key</th>
+                    <th>Continuous Feature 1</th>
+                    <th>Continuous Feature 2</th>
+                    <th>Categorical Feature</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                    <tr>
+                        <td>{{ entry.id }}</td>
+                        <td>{{ entry.continuous_feature1 }}</td>
+                        <td>{{ entry.continuous_feature2 }}</td>
+                        <td>{{ entry.categorical_feature }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
