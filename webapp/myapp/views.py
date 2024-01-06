@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 
 from .forms import DataEntryForm
 from .models import DataEntry
-from .serializers import DataEntrySerializer
+from .serializers import DataEntrySerializer, PredictionSerializer
 
 
 def home(request):
@@ -73,6 +73,7 @@ def api_data(request, record_id=None):
 def predict(request):
     if request.method == 'POST':
         form_data = {}
+        # todo refactor this code
         for field in DataEntry._meta.get_fields():
             if field.name.startswith('continuous_feature'):
                 value = request.POST.get(field.name, 0)
@@ -82,12 +83,8 @@ def predict(request):
                     return HttpResponseBadRequest(render(request, 'error_page.html', {'error_code': '400'}))
 
         all_entries = DataEntry.objects.all()
-        continuous_features = []
-        categorical_feature = []
-        for entry in all_entries:
-            continuous_features.append([getattr(entry, field.name) for field in DataEntry._meta.get_fields() if
-                                        field.name.startswith('continuous_feature')])
-            categorical_feature.append(entry.categorical_feature)
+        continuous_features = [[entry.continuous_feature1, entry.continuous_feature2] for entry in all_entries]
+        categorical_feature = [entry.categorical_feature for entry in all_entries]
 
         scaler = StandardScaler()
         standardized_values = scaler.fit_transform(continuous_features)
@@ -96,9 +93,35 @@ def predict(request):
 
         new_sample = scaler.transform([list(form_data.values())])
         predicted_category = knn_classifier.predict(new_sample)
-        #TODO should I add record to the database?
+        # TODO should I add record to the database?
         return render(request, 'prediction_result.html', {'predicted_category': predicted_category[0]})
 
     else:
-        fields = [field.name for field in DataEntry._meta.get_fields() if field.name.startswith('continuous_feature')]
+        fields = ['continuous_feature1', 'continuous_feature2']
         return render(request, 'predict_form.html', {'fields': fields})
+
+
+@api_view(['GET'])
+def api_predictions(request):
+    # Create the serializer instance
+    serializer = PredictionSerializer(data=request.query_params)
+    if not serializer.is_valid():
+        return Response({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
+
+    all_entries = DataEntry.objects.all()
+
+    continuous_features = [[entry.continuous_feature1, entry.continuous_feature2] for entry in all_entries]
+    categorical_feature = [entry.categorical_feature for entry in all_entries]
+
+    scaler = StandardScaler()
+    standardized_values = scaler.fit_transform(continuous_features)
+
+    knn_classifier = KNeighborsClassifier(n_neighbors=3)
+    knn_classifier.fit(standardized_values, categorical_feature)
+
+    new_sample = scaler.transform(
+        [[serializer.validated_data['continuous_feature1'], serializer.validated_data['continuous_feature2']]])
+
+    predicted_category = knn_classifier.predict(new_sample)
+
+    return JsonResponse({'predicted_category': int(predicted_category[0])})

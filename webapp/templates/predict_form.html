@@ -7,7 +7,7 @@
         <form method="post" action="{% url 'predict' %}">
             {% csrf_token %}
             {% for field in fields %}
-                <label for="{{ field }}">{{ field|title }}:</label>
+                <label for="{{ field }}">{{ field }}:</label>
                 <input type="number" name="{{ field }}" required step="any"><br>
             {% endfor %}
 
