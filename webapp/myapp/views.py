@@ -4,6 +4,8 @@ from django.views.decorators.http import require_POST
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
 
 from .forms import DataEntryForm
 from .models import DataEntry
@@ -68,5 +70,35 @@ def api_data(request, record_id=None):
             return JsonResponse({'pk': record_id}, status=status.HTTP_200_OK)
 
 
+def predict(request):
+    if request.method == 'POST':
+        form_data = {}
+        for field in DataEntry._meta.get_fields():
+            if field.name.startswith('continuous_feature'):
+                value = request.POST.get(field.name, 0)
+                try:
+                    form_data[field] = float(value)
+                except ValueError:
+                    return HttpResponseBadRequest(render(request, 'error_page.html', {'error_code': '400'}))
 
+        all_entries = DataEntry.objects.all()
+        continuous_features = []
+        categorical_feature = []
+        for entry in all_entries:
+            continuous_features.append([getattr(entry, field.name) for field in DataEntry._meta.get_fields() if
+                                        field.name.startswith('continuous_feature')])
+            categorical_feature.append(entry.categorical_feature)
 
+        scaler = StandardScaler()
+        standardized_values = scaler.fit_transform(continuous_features)
+        knn_classifier = KNeighborsClassifier(n_neighbors=3)
+        knn_classifier.fit(standardized_values, categorical_feature)
+
+        new_sample = scaler.transform([list(form_data.values())])
+        predicted_category = knn_classifier.predict(new_sample)
+        #TODO should I add record to the database?
+        return render(request, 'prediction_result.html', {'predicted_category': predicted_category[0]})
+
+    else:
+        fields = [field.name for field in DataEntry._meta.get_fields() if field.name.startswith('continuous_feature')]
+        return render(request, 'predict_form.html', {'fields': fields})

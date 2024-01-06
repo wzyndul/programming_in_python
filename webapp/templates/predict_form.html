@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Predict Category{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <form method="post" action="{% url 'predict' %}">
+            {% csrf_token %}
+            {% for field in fields %}
+                <label for="{{ field }}">{{ field|title }}:</label>
+                <input type="number" name="{{ field }}" required step="any"><br>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary">Predict</button>
+        </form>
+    </div>
+{% endblock %}
