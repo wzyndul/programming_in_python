@@ -1,6 +1,6 @@
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST, require_GET
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -12,6 +12,7 @@ from .models import DataEntry
 from .serializers import DataEntrySerializer, PredictionSerializer
 
 
+@require_GET
 def home(request):
     entries = DataEntry.objects.all()
     return render(request, 'home.html', {'entries': entries})
@@ -33,16 +34,13 @@ def add(request):
 
 @require_POST
 def delete(request, record_id):
-    if request.method == 'POST':
-        try:
-            entry = DataEntry.objects.get(id=record_id)
-        except DataEntry.DoesNotExist:
-            return HttpResponseNotFound(render(request, 'error_page.html', {'error_code': '404'}), status=404)
+    try:
+        entry = DataEntry.objects.get(id=record_id)
+    except DataEntry.DoesNotExist:
+        return HttpResponseNotFound(render(request, 'error_page.html', {'error_code': '404'}), status=404)
 
-        entry.delete()
-        return redirect('home')
-
-    return HttpResponseNotFound(render(request, 'error_page.html', {'error_code': '404'}), status=404)
+    entry.delete()
+    return redirect('home')
 
 
 @api_view(['GET', 'POST', 'DELETE'])
@@ -73,14 +71,13 @@ def api_data(request, record_id=None):
 def predict(request):
     if request.method == 'POST':
         form_data = {}
-        # todo refactor this code
-        for field in DataEntry._meta.get_fields():
-            if field.name.startswith('continuous_feature'):
-                value = request.POST.get(field.name, 0)
-                try:
-                    form_data[field] = float(value)
-                except ValueError:
-                    return HttpResponseBadRequest(render(request, 'error_page.html', {'error_code': '400'}))
+        value_feature1 = request.POST.get('continuous_feature1', 0)
+        value_feature2 = request.POST.get('continuous_feature2', 0)
+        try:
+            form_data['continuous_feature1'] = float(value_feature1)
+            form_data['continuous_feature2'] = float(value_feature2)
+        except ValueError:
+            return HttpResponseBadRequest(render(request, 'error_page.html', {'error_code': '400'}))
 
         all_entries = DataEntry.objects.all()
         continuous_features = [[entry.continuous_feature1, entry.continuous_feature2] for entry in all_entries]

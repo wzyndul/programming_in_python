@@ -1,17 +1,19 @@
 {% extends 'base.html' %}
 
 {% block title %}Predict Category{% endblock %}
-
+{% block header %}Predict{% endblock %}
 {% block content %}
-    <div class="container mt-4">
-        <form method="post" action="{% url 'predict' %}">
+    <div class="row justify-content-center">
+        <form method="post" action="{% url 'predict' %}" class="bg-light p-4 rounded">
             {% csrf_token %}
             {% for field in fields %}
-                <label for="{{ field }}">{{ field }}:</label>
-                <input type="number" name="{{ field }}" required step="any"><br>
+                <div class="mb-3 text-center">
+                    <label for="{{ field }}" class="form-label">{{ field }}:</label>
+                    <input type="number" name="{{ field }}" class="form-control" required step="any">
+                </div>
             {% endfor %}
 
-            <button type="submit" class="btn btn-primary">Predict</button>
+            <button type="submit" class="btn btn-secondary mx-auto d-block">Predict</button>
         </form>
     </div>
 {% endblock %}

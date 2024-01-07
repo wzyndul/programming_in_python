@@ -1,4 +1,3 @@
-# myapp/urls.py
 from django.urls import path
 from .views import home, add, delete, api_data, predict, api_predictions
 

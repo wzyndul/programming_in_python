@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 
 {% block title %}Prediction Result{% endblock %}
-
+{% block header %}Prediction Category:{% endblock %}
 {% block content %}
-    <div class="container mt-4">
-        <h2>Predicted Category:</h2>
-        <p>{{ predicted_category }}</p>
+    <div class="container mt-4 text-center">
+        <p class="lead display-4">{{ predicted_category }}</p>
     </div>
 {% endblock %}
