@@ -6,10 +6,15 @@
 
 {% block content %}
     <div class="container mt-4">
-        <form method="post" action="{% url 'add_data' %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Add Data Point</button>
-        </form>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form method="post" action="{% url 'add' %}" class="bg-light p-4 rounded text-center">
+                    {% csrf_token %}
+                    {{ form.as_p|safe }}
+
+                    <button type="submit" class="btn btn-secondary mx-auto d-block">Add Data Point</button>
+                </form>
+            </div>
+        </div>
     </div>
 {% endblock %}
