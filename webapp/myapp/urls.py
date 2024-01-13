@@ -8,5 +8,5 @@ urlpatterns = [
     path('api/data', api_data, name='api_data'),
     path('api/data/<int:record_id>', api_data, name='api_data'),
     path('predict', predict, name='predict'),
-    path('api/predictions/', api_predictions, name='api_predictions'),
+    path('api/predictions', api_predictions, name='api_predictions'),
 ]

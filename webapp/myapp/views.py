@@ -23,7 +23,7 @@ def add(request):
         form = DataEntryForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('home')  # Redirect to the home page
+            return redirect('home')
         else:
             return HttpResponseBadRequest(render(request, 'error_page.html', {'error_code': '400'}))
     else:
@@ -93,7 +93,7 @@ def predict(request):
         # TODO should I add record to the database?
         return render(request, 'prediction_result.html', {'predicted_category': predicted_category[0]})
 
-    else:
+    elif request.method == 'GET':
         fields = ['continuous_feature1', 'continuous_feature2']
         return render(request, 'predict_form.html', {'fields': fields})
 
