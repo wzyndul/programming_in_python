@@ -9,5 +9,5 @@ class DataEntrySerializer(serializers.ModelSerializer):
 
 
 class PredictionSerializer(serializers.Serializer):
-    continuous_feature1 = serializers.FloatField(default=0)
-    continuous_feature2 = serializers.FloatField(default=0)
+    continuous_feature1 = serializers.FloatField()
+    continuous_feature2 = serializers.FloatField()
