@@ -1,7 +1,7 @@
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, \
     JsonResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST
 from rest_framework import status
 from rest_framework.decorators import api_view
 from sklearn.neighbors import KNeighborsClassifier
@@ -12,7 +12,6 @@ from .models import DataEntry
 from .serializers import DataEntrySerializer, PredictionSerializer
 
 
-@require_GET
 def home(request):
     entries = DataEntry.objects.all()
     return render(request, 'home.html', {'entries': entries})
@@ -39,7 +38,7 @@ def delete(request, record_id):
     except DataEntry.DoesNotExist:
         return HttpResponseNotFound(
             render(request, 'error_page.html', {'error_code': '404'}),
-            status=404)
+            status=status.HTTP_404_NOT_FOUND)
 
     entry.delete()
     return redirect('home')
@@ -50,7 +49,8 @@ def api_data(request, record_id=None):
     if request.method == 'GET':
         entries = DataEntry.objects.all()
         serializer = DataEntrySerializer(entries, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return JsonResponse(serializer.data,
+                            safe=False)  # safe=False for objects serialization
     elif request.method == 'POST':
         serializer = DataEntrySerializer(data=request.data)
         if serializer.is_valid():
